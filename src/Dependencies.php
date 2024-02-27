@@ -38,6 +38,7 @@ final class Dependencies
         $autoloadByProjects = [];
         $dependenciesByProjects = [];
         $namespaces = [];
+        $classMapGenerator = new ClassMapGenerator();
 
         // Collect project data
         foreach (($projects ?? $config->projects) as $project) {
@@ -77,7 +78,8 @@ final class Dependencies
             }
 
             if ($computeClassMap) {
-                foreach (ClassMapGenerator::createMap($u) as $class => $path) {
+                $classMapGenerator->scanPaths($u);
+                foreach ($classMapGenerator->getClassMap()->getMap() as $class => $path) {
                     foreach ($namespaces as $ns) {
                         foreach ($config->exclude as $g) {
                             if (fnmatch($g, $path) || Path::isBasePath($g, $path)) {

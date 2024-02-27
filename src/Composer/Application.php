@@ -15,12 +15,16 @@ namespace Pmu\Composer;
 
 use Composer\Composer;
 use Composer\Console\Application as BaseApplication;
+use Composer\Downloader\PathDownloader;
+use Composer\Installer\InstallerInterface;
 use Composer\Repository\PathRepository;
 use Symfony\Component\Filesystem\Path;
 
 // we create a new Application that will add the mono-repository repositories to projects
 final class Application extends BaseApplication
 {
+    use BaseDirTrait;
+
     /**
      * @param string[] $projects
      */
@@ -44,6 +48,7 @@ final class Application extends BaseApplication
 
             if (is_string($config['url']) && !Path::isAbsolute($config['url'])) {
                 $config['url'] = Path::makeAbsolute($config['url'], $this->baseDir);
+                // $config['options'] = ['symlink' => false]; // avoid loops when we do classmaps
             }
 
             $absoluteRepository = $repositoryManager->createRepository('path', $config);
@@ -51,7 +56,7 @@ final class Application extends BaseApplication
 
             // Only add this repository if its package is one of our monorepository projects
             if (in_array($package->getName(), $this->projects, true)) {
-                $repositoryManager->addRepository($absoluteRepository);
+                $repositoryManager->prependRepository($absoluteRepository);
             }
         }
 

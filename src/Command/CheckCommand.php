@@ -13,7 +13,9 @@ declare(strict_types=1);
 
 namespace Pmu\Command;
 
+use Composer\ClassMapGenerator\ClassMapGenerator;
 use Composer\Command\BaseCommand;
+use Pmu\Composer\BaseDirTrait;
 use Pmu\Config;
 use Pmu\Dependencies;
 use Symfony\Component\Console\Input\InputInterface;
@@ -21,6 +23,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 final class CheckCommand extends BaseCommand
 {
+    use BaseDirTrait;
+
     protected function configure(): void
     {
         $this->setName('check-dependencies')->setDescription('Checks the monorepo dependencies.');

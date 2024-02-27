@@ -53,4 +53,8 @@ jobs:
           tools: composer
           coverage: none
       - run: composer install
+      - working-directory: ./tests/monorepo
+        run: |
+          composer install
+          composer all install
       - run: composer functional

@@ -15,7 +15,8 @@ namespace Pmu\Command;
 
 use Composer\Command\BaseCommand;
 use Composer\Console\Input\InputArgument;
-use Composer\Package\Package;
+use Composer\Console\Input\InputOption;
+use Composer\Package\PackageInterface;
 use Pmu\Composer\Application;
 use Pmu\Composer\BaseDirTrait;
 use Pmu\Config;
@@ -53,7 +54,7 @@ EOT
      * This way we don't have to add the repositories in each components, we just configure them on the root composer.
      * We then change the current working dir and run the Application again with the provided arguments.
      */
-    protected function execute(InputInterface $input, OutputInterface $output): int
+    public function run(InputInterface $input, OutputInterface $output): int
     {
         $composer = $this->requireComposer();
         $config = Config::create($composer);
@@ -66,7 +67,7 @@ EOT
         $input = new StringInput(implode(' ', $command));
 
         $commandPackage = $localRepo->findPackage($this->package, '*');
-        if (!$commandPackage || !$commandPackage instanceof Package) {
+        if (!$commandPackage || !$commandPackage instanceof PackageInterface) {
             $output->writeln(sprintf('Package "%s" could not be found.', $this->package));
             return 1;
         }
@@ -83,5 +84,13 @@ EOT
         $application = new Application($composer, $this->getBaseDir($composer->getConfig()), $config->projects);
         $application->setAutoExit(false);
         return $application->run($input, $output);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function isProxyCommand(): bool
+    {
+        return true;
     }
 }

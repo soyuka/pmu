@@ -31,6 +31,6 @@ final class ComposerCommandTest extends TestCase {
     public function testRunA(): void {
         $output = new BufferedOutput;
         $this->application->run(new StringInput('test/a run-script hello'), $output);
-        $this->assertEquals('> echo hello world', trim($output->fetch()));
+        $this->assertEquals("> exit 123\nScript exit 123 handling the hello event returned with error code 123\n", $output->fetch());
     }
 }

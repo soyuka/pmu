@@ -12,6 +12,6 @@
     }
   },
   "scripts": {
-    "hello": "echo hello world"
+    "hello": "exit 123"
   }
 }

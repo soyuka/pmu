@@ -24,9 +24,9 @@ composer req --dev soyuka/pmu
   },
   // Add local path repositories for these projects
   "repositories": [
-    {"type": "path", "url": "./packages/A", "symlink": true},
-    {"type": "path", "url": "./packages/B", "symlink": true},
-    {"type": "path", "url": "./packages/C", "symlink": true}
+    {"type": "path", "url": "./packages/A", "options": {"symlink": true}},
+    {"type": "path", "url": "./packages/B", "options": {"symlink": true}},
+    {"type": "path", "url": "./packages/C", "options": {"symlink": true}}
   ],
   "require": {
     "test/a": "*@dev",

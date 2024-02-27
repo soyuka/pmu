@@ -31,7 +31,6 @@ final class CheckCommandTest extends TestCase {
     public function testCheck(): void {
         $output = new BufferedOutput;
         $this->application->run(new StringInput('check-dependencies'), $output);
-        $this->assertEquals('Class "MonoRepo\C\C" uses "MonoRepo\A\A" but it is not declared as dependency.
-', $output->fetch());
+        $this->assertEquals('Class "MonoRepo\C\C" uses "MonoRepo\A\A" but it is not declared as dependency.', trim($output->fetch()));
     }
 }

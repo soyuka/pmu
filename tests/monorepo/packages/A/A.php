@@ -13,5 +13,9 @@ declare(strict_types=1);
 
 namespace MonoRepo\A;
 
+use MonoRepo\B\B;
+use MonoRepo\C\C;
 
-class A {}
+class A {
+    public function __construct(public B $b, public ?C $c = null) {}
+}

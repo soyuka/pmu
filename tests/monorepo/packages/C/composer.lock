@@ -12,7 +12,7 @@
             "dist": {
                 "type": "path",
                 "url": "/home/soyuka/projects/pmu/tests/monorepo/packages/B",
-                "reference": "1ba09e8930598962db91d31a633e9b6f3896cfce"
+                "reference": "8de418b3b77570abd781216132e77ce830dc1d13"
             },
             "type": "library",
             "autoload": {
@@ -21,6 +21,7 @@
                 }
             },
             "transport-options": {
+                "symlink": false,
                 "relative": false
             }
         }

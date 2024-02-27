@@ -35,8 +35,8 @@ final class AllCommandTest extends TestCase {
         $this->application->run(new StringInput('all install'), $nullOutput);
         $this->application->run(new StringInput('all show'), $output);
         $this->assertEquals('Execute "show" on "test/a"
-test/b dev-master
-test/c dev-master
+test/b dev-main
+test/c dev-main
 Execute "show" on "test/b"
 Execute "show" on "test/c"
 test/b dev-main
