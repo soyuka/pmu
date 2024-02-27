@@ -1,0 +1,44 @@
+{
+    "name": "test/monorepo",
+    "type": "project",
+    "description": "test project",
+    "license": "MIT",
+    "require-dev": {
+      "soyuka/pmu": "*@dev"
+    },
+    "minimum-stability": "dev",
+    "autoload": {
+      "psr-4": {
+        "MonoRepo\\": "src/"
+      }
+    },
+    "repositories": [
+      {"type": "path", "url": "../../", "symlink": true},
+      {"type": "path", "url": "./packages/A", "symlink": true},
+      {"type": "path", "url": "./packages/B", "symlink": true},
+      {"type": "path", "url": "./packages/C", "symlink": true}
+    ],
+    "extra": {
+      "branch-alias": {
+        "dev-main": "3.3.x-dev"
+      },
+      "projects": [
+        "test/a",
+        "test/b",
+        "test/c"
+      ],
+      "exclude": [
+
+      ]
+    },
+    "require": {
+      "test/a": "*@dev",
+      "test/b": "*@dev",
+      "test/c": "*@dev"
+    },
+    "config": {
+        "allow-plugins": {
+            "soyuka/pmu": true
+        }
+    }
+}

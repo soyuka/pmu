@@ -1,0 +1,62 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "aa6df68b594ebfa44dea932827b3f81f",
+    "packages": [
+        {
+            "name": "test/b",
+            "version": "dev-master",
+            "dist": {
+                "type": "path",
+                "url": "/home/soyuka/projects/pmu/tests/monorepo/packages/B",
+                "reference": "1ba09e8930598962db91d31a633e9b6f3896cfce"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "MonoRepo\\B\\": "."
+                }
+            },
+            "transport-options": {
+                "relative": false
+            }
+        }
+    ],
+    "packages-dev": [
+        {
+            "name": "test/c",
+            "version": "dev-master",
+            "dist": {
+                "type": "path",
+                "url": "/home/soyuka/projects/pmu/tests/monorepo/packages/C",
+                "reference": "e83434081fb4db3f650197cfb94a84861d7fd3fa"
+            },
+            "require": {
+                "test/b": "*@dev || ^1.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "MonoRepo\\C\\": "."
+                }
+            },
+            "transport-options": {
+                "relative": false
+            }
+        }
+    ],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": {
+        "test/b": 20,
+        "test/c": 20
+    },
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": [],
+    "plugin-api-version": "2.6.0"
+}

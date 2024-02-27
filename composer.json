@@ -1,0 +1,42 @@
+{
+    "name": "soyuka/pmu",
+    "description": "PHP Mono Repository Utility",
+    "type": "composer-plugin",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Pmu\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Pmu\\Tests\\Functional\\": "tests/functional/"
+        }
+    },
+    "authors": [
+        {
+            "name": "soyuka",
+            "email": "soyuka@users.noreply.github.com"
+        }
+    ],
+    "require": {
+        "composer-plugin-api": "^2.0"
+    },
+    "require-dev": {
+        "composer/composer": "^2.7",
+        "symfony/var-dumper": "^7.0",
+        "phpstan/phpstan": "^1.10",
+        "friendsofphp/php-cs-fixer": "^3.50",
+        "phpunit/phpunit": "^11.0"
+    },
+    "extra": {
+			"class": "Pmu\\Composer\\Plugin",
+      "plugin-optional": true
+    },
+    "scripts": {
+        "functional": "./vendor/bin/phpunit --bootstrap ./vendor/autoload.php tests/functional",
+        "unit": "/vendor/bin/phpunit --bootstrap ./vendor/autoload.php tests/unit",
+        "cs": "./vendor/bin/php-cs-fixer fix",
+        "phpstan": "./vendor/bin/phpstan analyse"
+    }
+}
