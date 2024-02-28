@@ -9,7 +9,8 @@
     "psr-4": {
       "MonoRepo\\C\\": "."
     }
+  },
+  "scripts": {
+    "echo": "echo"
   }
 }
-
-
