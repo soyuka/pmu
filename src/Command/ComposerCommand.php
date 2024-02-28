@@ -15,7 +15,6 @@ namespace Pmu\Command;
 
 use Composer\Command\BaseCommand;
 use Composer\Console\Input\InputArgument;
-use Composer\Console\Input\InputOption;
 use Composer\Package\PackageInterface;
 use Pmu\Composer\Application;
 use Pmu\Composer\BaseDirTrait;

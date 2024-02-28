@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Pmu\Command;
 
-use Composer\ClassMapGenerator\ClassMapGenerator;
 use Composer\Command\BaseCommand;
 use Pmu\Composer\BaseDirTrait;
 use Pmu\Config;
@@ -32,6 +31,11 @@ final class CheckCommand extends BaseCommand
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $autoload = getcwd() . '/vendor/autoload.php';
+        if (file_exists($autoload)) {
+            require_once $autoload;
+        }
+
         $composer = $this->requireComposer();
         $config = Config::create($composer);
         $repo = $composer->getRepositoryManager()->getLocalRepository();
@@ -74,7 +78,7 @@ final class CheckCommand extends BaseCommand
             foreach ($this->classUsesNamespaces($r, $namespaces) as $useNs) {
                 $ok = false;
                 foreach ($namespaceDependencies[$classNs] as $depNs) {
-                    if (str_starts_with($useNs, $depNs)) {
+                    if (str_starts_with($useNs, $classNs) || str_starts_with($useNs, $depNs)) {
                         $ok = true;
                         continue;
                     }
@@ -85,6 +89,10 @@ final class CheckCommand extends BaseCommand
                     $output->writeln(sprintf('Class "%s" uses "%s" but it is not declared as dependency.', $class, $useNs));
                 }
             }
+        }
+
+        if ($exitCode === 0) {
+            $output->writeln('All your projects dependencies are declared as "require" or "require_dev"');
         }
 
         return $exitCode;

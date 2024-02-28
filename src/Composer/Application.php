@@ -15,8 +15,6 @@ namespace Pmu\Composer;
 
 use Composer\Composer;
 use Composer\Console\Application as BaseApplication;
-use Composer\Downloader\PathDownloader;
-use Composer\Installer\InstallerInterface;
 use Composer\Repository\PathRepository;
 use Symfony\Component\Filesystem\Path;
 
