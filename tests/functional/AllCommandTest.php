@@ -34,6 +34,15 @@ final class AllCommandTest extends TestCase {
         $output = new BufferedOutput;
         $this->application->run(new StringInput('all install'), $nullOutput);
         $this->application->run(new StringInput('all echo'), $output);
-        $this->assertEquals("Execute \"echo\" on \"test/a\"\n> echo\nExecute \"echo\" on \"test/b\"\n> echo\nExecute \"echo\" on \"test/c\"\n> echo\n", $output->fetch());
+        $this->assertEquals('Execute "echo" on "test/a"
+> echo
+
+Execute "echo" on "test/b"
+> echo
+
+Execute "echo" on "test/c"
+> echo
+
+', $output->fetch());
     }
 }
