@@ -38,7 +38,7 @@ final class CheckCommand extends BaseCommand
 
         $composer = $this->requireComposer();
         $config = Config::create($composer);
-        $repo = $composer->getRepositoryManager()->getLocalRepository();
+        $repo = $composer->getRepositoryManager();
 
         [
             'autoloadByProjects' => $autoloadByProjects,

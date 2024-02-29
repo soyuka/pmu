@@ -35,7 +35,7 @@ final class GraphCommand extends BaseCommand
     {
         $composer = $this->requireComposer();
         $config = Config::create($composer);
-        $repo = $composer->getRepositoryManager()->getLocalRepository();
+        $repo = $composer->getRepositoryManager();
 
         $projects = null;
         if (is_array($p = $input->getArgument('projects')) && $p) {

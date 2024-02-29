@@ -26,11 +26,6 @@ composer req --dev soyuka/pmu
   "repositories": [
     {"type": "path", "url": "./packages/*"},
   ],
-  "require": {
-    "test/a": "@dev",
-    "test/b": "@dev",
-    "test/c": "@dev"
-  },
   "config": {
       "allow-plugins": {
           "soyuka/pmu": true

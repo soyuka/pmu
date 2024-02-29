@@ -31,14 +31,7 @@
         "test/b",
         "test/c"
       ],
-      "exclude": [
-
-      ]
-    },
-    "require": {
-      "test/a": "@dev",
-      "test/b": "@dev",
-      "test/c": "@dev"
+      "exclude": []
     },
     "config": {
         "allow-plugins": {

@@ -57,7 +57,7 @@ EOT
     {
         $composer = $this->requireComposer();
         $config = Config::create($composer);
-        $localRepo = $composer->getRepositoryManager()->getLocalRepository();
+        $repositoryManager = $composer->getRepositoryManager();
 
         // Not much optimized but safe
         $command = explode(' ', $input->__toString());
@@ -65,7 +65,7 @@ EOT
         unset($command[$key]);
         $input = new StringInput(implode(' ', $command));
 
-        $commandPackage = $localRepo->findPackage($this->package, '*');
+        $commandPackage = $repositoryManager->findPackage($this->package, '*');
         if (!$commandPackage || !$commandPackage instanceof PackageInterface) {
             $output->writeln(sprintf('Package "%s" could not be found.', $this->package));
             return 1;

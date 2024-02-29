@@ -15,7 +15,7 @@ namespace Pmu;
 
 use Composer\ClassMapGenerator\ClassMapGenerator;
 use Composer\Package\PackageInterface;
-use Composer\Repository\InstalledRepositoryInterface;
+use Composer\Repository\RepositoryManager;
 use Symfony\Component\Filesystem\Path;
 
 final class Dependencies
@@ -32,7 +32,7 @@ final class Dependencies
      *    namespaces: string[]
      * }
      */
-    public static function collectProjectsData(Config $config, InstalledRepositoryInterface $repo, bool $computeClassMap = false, bool $includeDev = false, ?array $projects = null): array
+    public static function collectProjectsData(Config $config, RepositoryManager $repo, bool $computeClassMap = false, bool $includeDev = false, ?array $projects = null): array
     {
         $classMap = [];
         $autoloadByProjects = [];

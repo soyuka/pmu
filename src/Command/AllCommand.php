@@ -49,7 +49,7 @@ EOT
     {
         $composer = $this->requireComposer();
         $config = Config::create($composer);
-        $localRepo = $composer->getRepositoryManager()->getLocalRepository();
+        $repositoryManager = $composer->getRepositoryManager();
 
         // Not much optimized but safe
         $command = explode(' ', $input->__toString());
@@ -67,7 +67,7 @@ EOT
         $exitCode = 0;
 
         foreach ($config->projects as $project) {
-            $commandPackage = $localRepo->findPackage($project, '*');
+            $commandPackage = $repositoryManager->findPackage($project, '*');
             if (!$commandPackage || !$commandPackage instanceof PackageInterface) {
                 $output->writeln(sprintf('Package "%s" could not be found.', $project));
                 continue;
