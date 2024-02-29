@@ -24,14 +24,12 @@ composer req --dev soyuka/pmu
   },
   // Add local path repositories for these projects
   "repositories": [
-    {"type": "path", "url": "./packages/A", "options": {"symlink": true}},
-    {"type": "path", "url": "./packages/B", "options": {"symlink": true}},
-    {"type": "path", "url": "./packages/C", "options": {"symlink": true}}
+    {"type": "path", "url": "./packages/*"},
   ],
   "require": {
-    "test/a": "*@dev",
-    "test/b": "*@dev",
-    "test/c": "*@dev"
+    "test/a": "@dev",
+    "test/b": "@dev",
+    "test/c": "@dev"
   },
   "config": {
       "allow-plugins": {
@@ -60,6 +58,12 @@ composer all install
 ```
 
 Runs `composer install` on every projects.
+
+For example to change the branch alias:
+
+```
+composer all config extra.branch-alias.dev-main 3.3.x-dev -vvv
+```
 
 ### Run a graph of dependencies
 
