@@ -38,6 +38,9 @@ Note that `repositories` are propagated to each project when running commands fr
 
 ## Commands 
 
+When using the pmu plugin commands, we will force packages to be installed from their local versions. 
+TODO: add option to install the tagged versions
+
 ### Run a command on a single project
 
 ```
