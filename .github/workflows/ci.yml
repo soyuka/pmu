@@ -55,6 +55,6 @@ jobs:
       - run: composer install
       - working-directory: ./tests/monorepo
         run: |
-          composer install
-          composer all install
+          composer update
+          composer all update
       - run: composer functional
