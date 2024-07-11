@@ -91,6 +91,21 @@ final class BlendCommandTest extends TestCase {
         $this->assertEquals("", $output->fetch());
     }
 
+    public function testBlendJsonPathEscapeDot(): void {
+        $this->files = [__DIR__ . '/../monorepo/packages/A/composer.json', __DIR__ . '/../monorepo/packages/B/composer.json', __DIR__ . '/../monorepo/packages/C/composer.json'];
+        $this->backups = array_map('file_get_contents', $this->files);
+        $output = new BufferedOutput;
+        $this->application->run(new StringInput('blend --json-path=extra.branch-alias.dev-3\\\.4 --force'), $output);
+
+        foreach ($this->files as $f) {
+            $json = file_get_contents($f) ?: throw new RuntimeException;
+            /** @var array{extra?: array{branch-alias?: array<string, string>}} */
+            $new = json_decode($json, true);
+            $this->assertEquals($new['extra']['branch-alias']['dev-3.4'] ?? null, '3.4.x-dev');
+        }
+        $this->assertEquals("", $output->fetch());
+    }
+
     protected function tearDown(): void {
         while ($file = array_shift($this->files)) {
             if ($b = array_shift($this->backups)) {
