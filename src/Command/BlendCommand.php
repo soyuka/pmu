@@ -114,7 +114,17 @@ final class BlendCommand extends BaseCommand
         $path = $this->composer->getConfig()->getConfigSource()->getName();
         $file = file_get_contents($path) ?: throw new \RuntimeException(sprintf('File "%s" not found.', $path));
         $data = json_decode($file, true) ?: throw new \RuntimeException(sprintf('File "%s" is not JSON.', $path));
-        $pointers = explode('.', $jsonPath);
+		$pattern = '/(?<!\\\\)\./';  // Regex pattern to match a dot not preceded by a backslash
+		$pointers = preg_split($pattern, $jsonPath);
+
+        if (!$pointers) {
+            $output->writeln('No pointers.');
+            return 1;
+        }
+
+		foreach ($pointers as &$part) {
+			$part = str_replace('\.', '.', $part);
+		}
 
         $p = $pointers;
         $value = $data;
@@ -179,7 +189,7 @@ final class BlendCommand extends BaseCommand
 
             unset($ref);
             $ref = $value;
-            $fileContent = file_put_contents($path, json_encode($json, JSON_PRETTY_PRINT));
+            $fileContent = file_put_contents($path, json_encode($json, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 
             if (!$fileContent) {
                 $output->writeln(sprintf('Could not write JSON at path "%s".', $path));
