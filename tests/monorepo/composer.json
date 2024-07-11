@@ -4,7 +4,11 @@
     "description": "test project",
     "license": "MIT",
     "require-dev": {
-      "soyuka/pmu": "*@dev"
+      "soyuka/pmu": "*@dev",
+      "symfony/contracts": "^2.0.0"
+    },
+    "require": {
+      "soyuka/contexts": "^3.0.0"
     },
     "minimum-stability": "dev",
     "autoload": {

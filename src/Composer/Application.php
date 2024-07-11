@@ -58,13 +58,13 @@ final class Application extends BaseApplication
             throw new \RuntimeException('Configuration should be an array.');
         }
 
-        foreach ($config['require'] as $name => $constraint) {
+        foreach ($config['require'] ?? [] as $name => $constraint) {
             if (in_array($name, $this->projects, true)) {
                 $config['require'][$name] = '@dev || ' . $constraint;
             }
         }
 
-        foreach ($config['require-dev'] as $name => $constraint) {
+        foreach ($config['require-dev'] ?? [] as $name => $constraint) {
             if (in_array($name, $this->projects, true)) {
                 $config['require-dev'][$name] = '@dev || ' . $constraint;
             }

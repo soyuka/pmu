@@ -63,6 +63,28 @@ For example to change the branch alias:
 composer all config extra.branch-alias.dev-main 3.3.x-dev -vvv
 ```
 
+### Blend dependencies
+
+Blend your root `composer.json` constraints in each of the projects. 
+
+```
+composer blend [--dev] [project-name]
+```
+
+Note: there's no dry mode on this command, use a VCS to rollback on unwanted changes.
+
+When `project-a` depends on `dependency-a:^2.0.0` and your root project has `dependency-a:^3.0.0`, running `composer blend` will set the requirement of `dependency-a` to `^3.0.0` in `project-a`.
+
+We do not check if a dependency is valid, you should probably run `composer all validate` or `composer all update` after running this. 
+
+Blend can also transfer any json path:
+
+```
+composer blend --json-path=extra.branch-alias.dev-main --force
+```
+
+Where `force` will write even if the value is not present in the project's `composer.json`.
+
 ### Run a graph of dependencies
 
 ```

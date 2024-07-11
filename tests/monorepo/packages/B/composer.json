@@ -1,9 +1,5 @@
 {
   "name": "test/b",
-  "require": {
-  }, 
-  "require-dev": {
-  },
   "autoload": {
     "psr-4": {
       "MonoRepo\\B\\": "."
