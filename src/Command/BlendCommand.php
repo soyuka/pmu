@@ -189,7 +189,7 @@ final class BlendCommand extends BaseCommand
 
             unset($ref);
             $ref = $value;
-            $fileContent = file_put_contents($path, json_encode($json, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+            $fileContent = file_put_contents($path, json_encode($json, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) . "\n");
 
             if (!$fileContent) {
                 $output->writeln(sprintf('Could not write JSON at path "%s".', $path));
