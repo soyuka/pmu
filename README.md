@@ -6,7 +6,8 @@ PMU is a Composer plugin for PHP Monorepository management.
 ## Installation
 
 ```
-composer req --dev soyuka/pmu
+composer require --dev soyuka/pmu
+composer global require --dev soyuka/pmu # ability to link projects globally
 ```
 
 ## Configuration
@@ -16,16 +17,10 @@ composer req --dev soyuka/pmu
   "name": "test/monorepo",
   // Specify the projects that are part of your monorepository
   "extra": {
-    "projects": [
-      "test/a",
-      "test/b",
-      "test/c"
-    ],
+    "pmu": {
+        "projects": ["./packages/*/composer.json"]
+    }
   },
-  // Add local path repositories for these projects
-  "repositories": [
-    {"type": "path", "url": "./packages/*"},
-  ],
   "config": {
       "allow-plugins": {
           "soyuka/pmu": true
@@ -37,9 +32,6 @@ composer req --dev soyuka/pmu
 Note that `repositories` are propagated to each project when running commands from the base `composer.json` file. An example is available in the `tests/monorepo` directory.
 
 ## Commands 
-
-When using the pmu plugin commands, we will force packages to be installed from their local versions. 
-TODO: add option to install the tagged versions
 
 ### Run a command on a single project
 
@@ -101,8 +93,21 @@ This script reads the code and detect `use` classes. It then checks that the dep
 composer check-dependencies
 ```
 
+### Link 
+
+To link your project's mono-repository dependencies use `composer link`. This will create a temporary composer definition with:
+
+- configured repository on each project's `path`
+- add a `@dev` constraint to force composer to run local symlinks
+- run `composer update`
+- revert the definition to the previous ones (we recommend running this command after setting up a version control system)
+
+You can run this command on a global install to link a directory to the current project:
+
+```
+composer global link ../the-mono-repository --working-directory=$(pwd)
+```
+
 ## TODO:
 
-- handle `branch-alias`
-- bump versions of each project's dependencies
 - create and `affected` graph to be able to run tests on affected projects

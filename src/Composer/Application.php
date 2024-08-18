@@ -18,19 +18,18 @@ use Composer\Console\Application as BaseApplication;
 use Composer\Factory;
 use Composer\Json\JsonFile;
 use Composer\Package\Locker;
-use Composer\Repository\PathRepository;
 use Composer\Util\Platform;
-use Symfony\Component\Filesystem\Path;
+use Pmu\Config;
 
-// we create a new Application that will add the mono-repository repositories to projects
+/**
+ * We create a new Application that will add the mono-repository repositories to projects,
+ * the same logic that is applied to the Link function.
+ */
 final class Application extends BaseApplication
 {
     use BaseDirTrait;
 
-    /**
-     * @param string[] $projects
-     */
-    public function __construct(private Composer $monoRepoComposer, private string $baseDir, private array $projects, string $name = 'Composer', string $version = '')
+    public function __construct(private string $baseDir, private Config $config, string $name = 'Composer', string $version = '')
     {
         parent::__construct($name, $version);
     }
@@ -51,6 +50,7 @@ final class Application extends BaseApplication
 
         return $file->read();
     }
+
     public function getComposer(bool $required = true, ?bool $disablePlugins = null, ?bool $disableScripts = null): ?Composer
     {
         $config = $this->getLocalConfig();
@@ -58,15 +58,15 @@ final class Application extends BaseApplication
             throw new \RuntimeException('Configuration should be an array.');
         }
 
-        foreach ($config['require'] ?? [] as $name => $constraint) {
-            if (in_array($name, $this->projects, true)) {
-                $config['require'][$name] = '@dev || ' . $constraint;
+        foreach (array_keys($config['require'] ?? []) as $name) {
+            if (in_array($name, $this->config->projects, true)) {
+                $config['require'][$name] = '@dev';
             }
         }
 
-        foreach ($config['require-dev'] ?? [] as $name => $constraint) {
-            if (in_array($name, $this->projects, true)) {
-                $config['require-dev'][$name] = '@dev || ' . $constraint;
+        foreach (array_keys($config['require-dev'] ?? []) as $name) {
+            if (in_array($name, $this->config->projects, true)) {
+                $config['require-dev'][$name] = '@dev';
             }
         }
 
@@ -87,28 +87,10 @@ final class Application extends BaseApplication
         $composer->setLocker($locker);
 
         $repositoryManager = $composer->getRepositoryManager();
-        $packages = [];
 
-        foreach ($this->monoRepoComposer->getRepositoryManager()->getRepositories() as $repository) {
-            if (!$repository instanceof PathRepository) {
-                continue;
-            }
-
-            $config = $repository->getRepoConfig();
-
-            if (is_string($config['url']) && !Path::isAbsolute($config['url'])) {
-                $config['url'] = Path::makeAbsolute($config['url'], $this->baseDir);
-                // $config['options'] = ['symlink' => false]; // avoid loops when we do classmaps
-            }
-
-            $absoluteRepository = $repositoryManager->createRepository('path', $config);
-            $package = $absoluteRepository->getPackages()[0];
-
-            // Only add this repository if its package is one of our monorepository projects
-            if (in_array($package->getName(), $this->projects, true)) {
-                $packages[] = $package->getName();
-                $repositoryManager->prependRepository($absoluteRepository);
-            }
+		foreach ($this->config->composerFiles as $filename) {
+            $absoluteRepository = $repositoryManager->createRepository('path', ['url' => join('/', [$this->baseDir, dirname($filename)])]);
+            $repositoryManager->prependRepository($absoluteRepository);
         }
 
         return $composer;

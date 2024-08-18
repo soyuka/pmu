@@ -15,7 +15,6 @@ namespace Pmu\Command;
 
 use Composer\Command\BaseCommand;
 use Composer\Console\Input\InputArgument;
-use Composer\Package\PackageInterface;
 use Pmu\Composer\Application;
 use Pmu\Composer\BaseDirTrait;
 use Pmu\Config;
@@ -57,30 +56,17 @@ EOT
     {
         $composer = $this->requireComposer();
         $config = Config::create($composer);
-        $repositoryManager = $composer->getRepositoryManager();
 
         // Not much optimized but safe
-        $command = explode(' ', $input->__toString());
+        $command = explode(' ', (string) $input);
         $key = array_search($this->package, $command, true);
         unset($command[$key]);
         $input = new StringInput(implode(' ', $command));
 
-        $commandPackage = $repositoryManager->findPackage($this->package, '*');
-        if (!$commandPackage || !$commandPackage instanceof PackageInterface) {
-            $output->writeln(sprintf('Package "%s" could not be found.', $this->package));
-            return 1;
-        }
-
-        $dir = $commandPackage->getDistUrl();
-
-        if (!is_string($dir) || !is_dir($dir)) {
-            $output->writeln(sprintf('Package "%s" could not be found at path "%s".', $this->package, $dir));
-            return 1;
-        }
-
         // Change cwd and run
-        chdir($dir);
-        $application = new Application($composer, $this->getBaseDir($composer->getConfig()), $config->projects);
+        chdir(dirname($config->composerFiles[$this->package]));
+        // TODO: add an option to not use a modified composer file
+        $application = new Application($this->getBaseDir($composer->getConfig()), $config);
         $application->setAutoExit(false);
         return $application->run($input, $output);
     }

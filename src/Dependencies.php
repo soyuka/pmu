@@ -14,12 +14,28 @@ declare(strict_types=1);
 namespace Pmu;
 
 use Composer\ClassMapGenerator\ClassMapGenerator;
-use Composer\Package\PackageInterface;
 use Composer\Repository\RepositoryManager;
 use Symfony\Component\Filesystem\Path;
 
+/**
+ * @phpstan-type ComposerJsonType array{repositories?: list<array{type: string, url: string}>, require?: array<string, string>, require-dev?: array<string, string>, extra?: array{pmu?: array{projects?: string[], exclude?: string[]}}, autoload?: array<string, array<string, array<string, string>>>}
+ */
 final class Dependencies
 {
+    /**
+     * @return ComposerJsonType
+     */
+    private static function readJsonFile(string $composerFile): array
+    {
+        $composer = file_get_contents($composerFile);
+        if (!$composer) {
+            throw new \RuntimeException(sprintf('Composer file "%s" is not readable.', $composerFile));
+        }
+
+        /** @var ComposerJsonType */
+        return json_decode($composer, true);
+    }
+
     /**
      * Collects data in this single function for performance reasons we want to avoid looping more then once over projects.
      *
@@ -42,17 +58,13 @@ final class Dependencies
 
         // Collect project data
         foreach (($projects ?? $config->projects) as $project) {
-            $package = $repo->findPackage($project, '*');
-
-            if (!$package instanceof PackageInterface) {
+            if (!($composerFile = $config->composerFiles[$project] ?? null)) 
+            {
                 continue;
             }
 
-            if (!($u = $package->getDistUrl())) {
-                continue;
-            }
-
-            $autoload = $package->getAutoload();
+            $package = static::readJsonFile($composerFile);
+            $autoload = $package['autoload'] ?? [];
             $autoloadByProjects[$project] = [];
 
             foreach (array_keys($autoload['psr-4'] ?? []) as $ns) {
@@ -65,20 +77,20 @@ final class Dependencies
                 $namespaces[] = $ns;
             }
 
-            $requires = $package->getRequires();
+            $requires = $package['require'] ?? [];
             if ($includeDev) {
-                $requires = array_merge($requires, $package->getDevRequires());
+                $requires = array_merge($requires, $package['require-dev'] ?? []);
             }
 
             $dependenciesByProjects[$project] = [];
             foreach (array_keys($requires) as $require) {
-                if (in_array($require, $config->projects, true)) {
+                if (isset($config->composerFiles[$require])) {
                     $dependenciesByProjects[$project][] = $require;
                 }
             }
 
             if ($computeClassMap) {
-                $classMapGenerator->scanPaths($u);
+                $classMapGenerator->scanPaths(dirname($composerFile));
                 foreach ($classMapGenerator->getClassMap()->getMap() as $class => $path) {
                     foreach ($namespaces as $ns) {
                         foreach ($config->exclude as $g) {

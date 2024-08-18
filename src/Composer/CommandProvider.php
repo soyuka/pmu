@@ -21,6 +21,7 @@ use Pmu\Command\BlendCommand;
 use Pmu\Command\CheckCommand;
 use Pmu\Command\ComposerCommand;
 use Pmu\Command\GraphCommand;
+use Pmu\Command\LinkCommand;
 use Pmu\Config;
 
 final class CommandProvider implements CommandProviderCapability
@@ -38,7 +39,7 @@ final class CommandProvider implements CommandProviderCapability
     public function getCommands(): array
     {
         $config = Config::create($this->composer);
-        $commands = [new GraphCommand(), new AllCommand(), new CheckCommand(), new BlendCommand()];
+        $commands = [new GraphCommand(), new AllCommand(), new CheckCommand(), new BlendCommand(), new LinkCommand()];
         foreach ($config->projects as $project) {
             $commands[] = new ComposerCommand($project);
         }

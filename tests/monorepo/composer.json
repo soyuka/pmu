@@ -4,39 +4,50 @@
     "description": "test project",
     "license": "MIT",
     "require-dev": {
-      "soyuka/pmu": "*@dev",
-      "symfony/contracts": "^2.0.0"
+        "soyuka/pmu": "*@dev",
+        "symfony/contracts": "^2.0.0"
     },
     "require": {
-      "soyuka/contexts": "^3.0.0"
+        "soyuka/contexts": "^3.0.0",
+        "test/a": "^1.0.0 || @dev",
+        "test/b": "^1.0.0 || @dev",
+        "test/c": "^1.0.0 || @dev"
     },
     "minimum-stability": "dev",
     "autoload": {
-      "psr-4": {
-        "MonoRepo\\": "src/"
-      }
+        "psr-4": {
+            "MonoRepo\\": "src/"
+        }
     },
     "repositories": [
-      {"type": "path", "url": "../../", "options": {"symlink": true}},
-      {
-          "type": "path",
-          "url": "./packages/*",
-          "options": {
-              "symlink": true
-          }
-      }
+        {
+            "type": "path",
+            "url": "../../",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "./packages/A"
+        },
+        {
+            "type": "path",
+            "url": "./packages/B"
+        },
+        {
+            "type": "path",
+            "url": "./packages/C"
+        }
     ],
     "extra": {
-      "branch-alias": {
-        "dev-main": "3.3.x-dev",
-        "dev-3.4": "3.4.x-dev"
-      },
-      "projects": [
-        "test/a",
-        "test/b",
-        "test/c"
-      ],
-      "exclude": []
+        "branch-alias": {
+            "dev-main": "3.3.x-dev",
+            "dev-3.4": "3.4.x-dev"
+        },
+        "pmu": {
+            "projects": ["./packages/*/composer.json"]
+        }
     },
     "config": {
         "allow-plugins": {

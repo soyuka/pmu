@@ -1,11 +1,11 @@
 {
   "name": "test/a",
   "require": {
-    "test/b": "*@dev || ^1.0",
-    "soyuka/contexts": "^2.0.0"
+    "test/b": "^1.0 || @dev",
+    "soyuka/contexts": "^2.0.0 || ^3.0.0"
   },
   "require-dev": {
-    "test/c": "*@dev || ^1.0",
+    "test/c": "^1.0 || @dev",
     "symfony/contracts": "^1.0.0"
   },
   "autoload": {
