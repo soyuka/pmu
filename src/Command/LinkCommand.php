@@ -44,6 +44,7 @@ final class LinkCommand extends BaseCommand
             ->setDefinition([
                 new InputArgument('path', InputArgument::OPTIONAL, 'Path to link.'),
                 new InputOption('working-directory', 'wd', InputOption::VALUE_REQUIRED, "Defaults to SERVER['PWD']"),
+                new InputOption('permanent', 'p', InputOption::VALUE_NONE, "Permanent composer change, does not revert backups."),
             ]);
     }
 
@@ -125,6 +126,11 @@ final class LinkCommand extends BaseCommand
             $application->setAutoExit(false);
             $application->run(new StringInput('update'), $output);
         } catch (\Exception $e) {
+        }
+
+        var_dump($input->getOption('permanent'));
+        if ($input->getOption('permanent')) {
+            return 0;
         }
 
         foreach ($revert as $file => $backup) {
