@@ -128,7 +128,6 @@ final class LinkCommand extends BaseCommand
         } catch (\Exception $e) {
         }
 
-        var_dump($input->getOption('permanent'));
         if ($input->getOption('permanent')) {
             return 0;
         }
