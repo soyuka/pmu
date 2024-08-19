@@ -72,7 +72,7 @@ final class BlendCommandTest extends TestCase {
 
         /** @var array{require: array<string, string>, 'require-dev': array<string, string>} */
         $new = json_decode($json, true);
-        $this->assertEquals($new['require']['soyuka/contexts'], '^2.0.0');
+        $this->assertEquals($new['require']['soyuka/contexts'], '^2.0.0 || ^3.0.0');
         $this->assertEquals("", $output->fetch());
     }
 

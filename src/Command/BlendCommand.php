@@ -17,14 +17,14 @@ use Composer\Command\BaseCommand;
 use Composer\Composer;
 use Composer\Console\Input\InputArgument;
 use Composer\Console\Input\InputOption;
-use Composer\Json\JsonFile;
-use Composer\Package\PackageInterface;
+use Pmu\Composer\ReadJsonFileTrait;
 use Pmu\Config;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 final class BlendCommand extends BaseCommand
 {
+    use ReadJsonFileTrait;
     private Composer $composer;
     private Config $config;
 
@@ -52,32 +52,19 @@ final class BlendCommand extends BaseCommand
         }
 
         $projects = $this->getProjects($input);
-        $repo = $this->composer->getRepositoryManager();
         $package = $this->composer->getPackage();
-        foreach ($this->config->projects as $p) {
+        foreach ($this->config->composerFiles as $p => $composerFile) {
             if ($projects && !in_array($p, $projects, true)) {
                 continue;
             }
 
-            $projectPackage = $repo->findPackage($p, '*');
-            if (!$projectPackage || !$projectPackage instanceof PackageInterface) {
-                $output->writeln(sprintf('Package "%s" could not be found.', $p));
-                return 1;
-            }
-
-            $dir = $projectPackage->getDistUrl();
-            if (!is_string($dir) || !is_dir($dir)) {
-                $output->writeln(sprintf('Package "%s" could not be found at path "%s".', $p, $dir));
-                continue;
-            }
-
-            $packagesToUpdate = [];
+            $projectPackage = $this->readJsonFile($composerFile);
             foreach ($package->{$packageAccessor}() as $g) {
                 // Only update the package if it's found in the project's package
                 if (!$input->getOption('force')) {
                     $hasPackage = false;
-                    foreach ($projectPackage->{$packageAccessor}() as $r) {
-                        if ($g->getTarget() === $r->getTarget()) {
+                    foreach ($projectPackage[$requireKey] ?? [] as $r => $constraint) {
+                        if ($g->getTarget() === $r) {
                             $hasPackage = true;
                             break;
                         }
@@ -88,21 +75,10 @@ final class BlendCommand extends BaseCommand
                     }
                 }
 
-                $packagesToUpdate[$g->getTarget()] = $g->getPrettyConstraint();
+                $projectPackage[$requireKey][$g->getTarget()] = $g->getPrettyConstraint();
             }
 
-            if (!$packagesToUpdate) {
-                continue;
-            }
-
-            $json = new JsonFile($dir . '/composer.json');
-            /** @var array{require: array<string, string>, 'require-dev': array<string, string>} */
-            $composerDefinition = $json->read();
-            foreach ($packagesToUpdate as $target => $constraint) {
-                $composerDefinition[$requireKey][$target] = $constraint;
-            }
-
-            $json->write($composerDefinition);
+            file_put_contents($composerFile, json_encode($projectPackage, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) . "\n");
         }
 
         return 0;
@@ -112,8 +88,7 @@ final class BlendCommand extends BaseCommand
         /** @var string */
         $jsonPath = $input->getOption('json-path');
         $path = $this->composer->getConfig()->getConfigSource()->getName();
-        $file = file_get_contents($path) ?: throw new \RuntimeException(sprintf('File "%s" not found.', $path));
-        $data = json_decode($file, true) ?: throw new \RuntimeException(sprintf('File "%s" is not JSON.', $path));
+        $data = $this->readJsonFile($path);
 		$pattern = '/(?<!\\\\)\./';  // Regex pattern to match a dot not preceded by a backslash
 		$pointers = preg_split($pattern, $jsonPath);
 
@@ -138,28 +113,13 @@ final class BlendCommand extends BaseCommand
             $value = $value[$pointer];
         }
 
-        $repo = $this->composer->getRepositoryManager();
         $projects = $this->getProjects($input);
-        foreach ($this->config->projects as $project) {
+        foreach ($this->config->composerFiles as $project => $composerFile) {
             if ($projects && !in_array($project, $projects, true)) {
                 continue;
             }
 
-            $package = $repo->findPackage($project, '*');
-            if (!$package || !$package instanceof PackageInterface) {
-                $output->writeln(sprintf('Package "%s" could not be found.', $project));
-                return 1;
-            }
-
-            $dir = $package->getDistUrl();
-            if (!is_string($dir) || !is_dir($dir)) {
-                $output->writeln(sprintf('Package "%s" could not be found at path "%s".', $project, $dir));
-                continue;
-            }
-            
-            $path = $dir . '/composer.json';
-            $fileContent = file_get_contents($path) ?: throw new \RuntimeException(sprintf('File "%s" not found.', $path));
-            $json = json_decode($fileContent, true) ?: throw new \RuntimeException(sprintf('File "%s" is not JSON.', $path));
+            $json = $this->readJsonFile($composerFile);
             $force = $input->getOption('force');
 
             $p = $pointers;
@@ -189,10 +149,10 @@ final class BlendCommand extends BaseCommand
 
             unset($ref);
             $ref = $value;
-            $fileContent = file_put_contents($path, json_encode($json, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) . "\n");
+            $fileContent = file_put_contents($composerFile, json_encode($json, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) . "\n");
 
             if (!$fileContent) {
-                $output->writeln(sprintf('Could not write JSON at path "%s".', $path));
+                $output->writeln(sprintf('Could not write JSON at path "%s".', $composerFile));
             }
         }
 
