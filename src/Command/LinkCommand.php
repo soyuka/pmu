@@ -57,7 +57,7 @@ final class LinkCommand extends BaseCommand
         $wd = $input->getOption('working-directory') ?? $_SERVER['PWD'] ?? null;
         $path = $input->getArgument('path') ?? null;
 
-        if (is_string($path)) {
+        if (is_string($path) && !str_starts_with($path, '/')) {
             if (!$wd) {
                 throw new RuntimeException(sprintf('Can not find working directory, specify its value using "composer link %s --working-directory=$(pwd)"', $path));
             }
