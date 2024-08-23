@@ -72,7 +72,7 @@ final class LinkCommand extends BaseCommand
         $config = Config::createFromJson($monoRepositoryComposer, $baseDir);
         $composerFile = $this->getComposerFileAtPath($wd);
         $repositories = $this->buildRepositories($config->composerFiles);
-        $composer = static::$fileContents[$composerFile] = $this->readJsonFile($composerFile);
+        $composer = self::$fileContents[$composerFile] = $this->readJsonFile($composerFile);
 
         $filesToWrite = [];
         $revert = [];
@@ -172,8 +172,8 @@ final class LinkCommand extends BaseCommand
             }
 
             yield $package;
-            
-            static::$fileContents[$composerFiles[$package]] = $this->readJsonFile($composerFiles[$package]);
+
+            self::$fileContents[$composerFiles[$package]] = $this->readJsonFile($composerFiles[$package]);
             foreach ($this->mapDependencies(static::$fileContents[$composerFiles[$package]], $composerFiles, $key) as $package) {
                 yield $package;
             }
