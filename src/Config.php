@@ -47,12 +47,12 @@ final class Config
 
             foreach ($filenames as $filename) {
                 if (!$content = file_get_contents($filename)) {
-                    continue;
+                    throw new \RuntimeException(sprintf('File %s not found.', $filename));
                 }
 
                 $json = json_decode($content, true);
                 if (!is_array($json) || !isset($json['name']) || !is_string($json['name'])) {
-                    continue;
+                    throw new \RuntimeException(sprintf('Malformed JSON at path %s.', $filename));
                 }
 
                 $projects[] = $json['name'];
