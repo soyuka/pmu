@@ -50,7 +50,7 @@ final class LinkCommand extends BaseCommand
 
     private function getComposerFileAtPath(mixed $path): string
     {
-        return is_string($path) ? join('/', [$path, 'composer.json']) : join('/', [getcwd(), Factory::getComposerFile()]);
+        return is_string($path) ? join(PHP_EOL, [$path, 'composer.json']) : join(PHP_EOL, [getcwd(), Factory::getComposerFile()]);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -63,7 +63,7 @@ final class LinkCommand extends BaseCommand
                 throw new RuntimeException(sprintf('Can not find working directory, specify its value using "composer link %s --working-directory=$(pwd)"', $path));
             }
 
-            $path = join('/', [$wd, $path]);
+            $path = join(PHP_EOL, [$wd, $path]);
         }
 
         $monoRepositoryComposerFile = $this->getComposerFileAtPath($path);

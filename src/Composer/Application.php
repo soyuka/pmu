@@ -89,7 +89,7 @@ final class Application extends BaseApplication
         $repositoryManager = $composer->getRepositoryManager();
 
 		foreach ($this->config->composerFiles as $filename) {
-            $absoluteRepository = $repositoryManager->createRepository('path', ['url' => join('/', [$this->baseDir, dirname($filename)])]);
+            $absoluteRepository = $repositoryManager->createRepository('path', ['url' => join(PHP_EOL, [$this->baseDir, dirname($filename)])]);
             $repositoryManager->prependRepository($absoluteRepository);
         }
 

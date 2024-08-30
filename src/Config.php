@@ -40,7 +40,7 @@ final class Config
         $projects = [];
         $composerFiles = [];
         foreach ($files as $glob) {
-            $filenames = glob(join('/', [$baseDir, $glob]));
+            $filenames = glob(join(PHP_EOL, [$baseDir, $glob]));
             if (!$filenames) {
                 return new self();
             }
