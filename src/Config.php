@@ -21,8 +21,9 @@ final class Config
      * @param string[] $projects
      * @param string[] $exclude
      * @param array<string, string> $composerFiles
+     * @param array<string, bool> $baseLine errors to omit from "check-dependencies" command, strings only
      */
-    public function __construct(public readonly array $projects = [], public readonly array $exclude = [], public readonly array $composerFiles = [])
+    public function __construct(public readonly array $projects = [], public readonly array $exclude = [], public readonly array $composerFiles = [], public readonly array $baseLine = [])
     {
     }
 
@@ -34,6 +35,18 @@ final class Config
         $extra = $composer['extra'] ?? [];
         if (!isset($extra['pmu'])) {
             return new self();
+        }
+
+        if (file_exists('pmu.baseline')) {
+            $contents = file_get_contents('pmu.baseline');
+            if ($contents) {
+                $baseLine = [];
+                foreach (explode(PHP_EOL, $contents) as $v) {
+                    if ($v) {
+                        $baseLine[$v] = true;
+                    }
+                }
+            }
         }
 
         $files = self::toArrayString($extra['pmu']['projects'] ?? null);
@@ -63,7 +76,8 @@ final class Config
         return new self(
             projects: $projects,
             exclude: self::toArrayString($extra['pmu']['exclude'] ?? null),
-            composerFiles: $composerFiles
+            composerFiles: $composerFiles,
+            baseLine: $baseLine ?? []
         );
     }
 

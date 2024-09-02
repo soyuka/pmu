@@ -47,6 +47,11 @@ final class CheckCommand extends BaseCommand
             'classMap' => $classMap
         ] = Dependencies::collectProjectsData($config, $repo, computeClassMap: true, includeDev: true);
 
+        /** 
+         * @var array<string, string[]>
+         */
+        $namespaceDependencies = [];
+
         // builds a map Namespace => Namespace[]
         foreach ($dependenciesByProjects as $project => $dependencies) {
             foreach ($autoloadByProjects[$project] as $ns) {
@@ -84,9 +89,15 @@ final class CheckCommand extends BaseCommand
                     }
                 }
 
+                $error = sprintf('Class "%s" uses "%s" but it is not declared as dependency.', $class, $useNs);
+
+                if (isset($config->baseLine[$error])) {
+                    continue;
+                }
+
                 if (!$ok) {
                     $exitCode = 1;
-                    $output->writeln(sprintf('Class "%s" uses "%s" but it is not declared as dependency.', $class, $useNs));
+                    $output->writeln($error);
                 }
             }
         }

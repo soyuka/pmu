@@ -1,0 +1,21 @@
+{
+    "name": "test/d",
+    "require": {
+        "test/a": "^1.0.0 || @dev"
+    },
+    "require-dev": [],
+    "autoload": {
+        "psr-4": {
+            "MonoRepo\\D\\": "."
+        }
+    },
+    "scripts": {
+        "echo": "echo"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-main": "3.3.x-dev",
+            "dev-3.4": "3.4.x-dev"
+        }
+    }
+}

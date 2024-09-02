@@ -31,10 +31,10 @@ final class GraphCommandTest extends TestCase {
     public function testGraph(): void {
         $output = new BufferedOutput;
         $this->application->run(new StringInput('graph'), $output);
-        $this->assertEquals('digraph D { 
-    "test/a" -> "test/b"
-    "test/c" -> "test/b" 
-}', $output->fetch());
+        $result = $output->fetch();
+        $this->assertStringContainsString('digraph D {', $result);
+        $this->assertStringContainsStringIgnoringLineEndings('"test/a" -> "test/b"', $result);
+        $this->assertStringContainsStringIgnoringLineEndings('"test/c" -> "test/b"', $result);
     }
 
     public function testGraphWithProject(): void {

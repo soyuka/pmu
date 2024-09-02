@@ -11,7 +11,8 @@
         "soyuka/contexts": "^3.0.0",
         "test/a": "^1.0.0 || @dev",
         "test/b": "^1.0.0 || @dev",
-        "test/c": "^1.0.0 || @dev"
+        "test/c": "^1.0.0 || @dev",
+        "test/d": "^1.0.0 || @dev"
     },
     "minimum-stability": "dev",
     "autoload": {
@@ -38,6 +39,10 @@
         {
             "type": "path",
             "url": "./packages/C"
+        },
+        {
+            "type": "path",
+            "url": "./packages/D"
         }
     ],
     "extra": {
