@@ -1,1 +1,1 @@
-Class "MonoRepo\D\C" uses "MonoRepo\A\A" but it is not declared as dependency.
+Class "MonoRepo\D\D" uses "MonoRepo\A\A" but it is not declared as dependency.

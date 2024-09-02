@@ -60,7 +60,7 @@ composer all config extra.branch-alias.dev-main 3.3.x-dev -vvv
 Blend your root `composer.json` constraints in each of the projects. 
 
 ```
-composer blend [--dev] [project-name]
+composer blend [--dev] [--all] [--self] [project-name]
 ```
 
 Note: there's no dry mode on this command, use a VCS to rollback on unwanted changes.
@@ -76,6 +76,12 @@ composer blend --json-path=extra.branch-alias.dev-main --force
 ```
 
 Where `force` will write even if the value is not present in the project's `composer.json`.
+
+When you want to bump all your mono-repository's dependencies and ignore the rest use `--self`, this is quite handy with the `--all` option, on API Platform we use this to align every dependency of our mono-repository (eg: set every version to the ones defined on our root composer.json): 
+
+```
+composer blend --all --self
+```
 
 ### Run a graph of dependencies
 

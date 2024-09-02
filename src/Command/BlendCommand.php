@@ -33,19 +33,22 @@ final class BlendCommand extends BaseCommand
         $this->setName('blend')
             ->setDefinition([
                 new InputOption('dev', 'D', InputOption::VALUE_NONE, 'Blend dev requirements.'),
+                new InputOption('all', 'A', InputOption::VALUE_NONE, 'Blend all (dev + non-dev) requirements.'),
+                new InputOption('self', 'S', InputOption::VALUE_NONE, 'Blend only the mono-repository projects requirements.'),
                 new InputOption('json-path', null, InputOption::VALUE_REQUIRED, 'Json path to blend'),
                 new InputOption('force', null, InputOption::VALUE_NONE, 'Force'),
                 new InputArgument('projects', InputArgument::IS_ARRAY | InputArgument::OPTIONAL, ''),
             ])
-            ->setDescription('Blend the mono-repository dependencies into each projects.');
+            ->setDescription('Blend the mono-repository dependencies into each projects. We read all the dependencies of the root package and map them to either dev, non-dev or all.');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->composer = $this->requireComposer();
         $this->config = Config::create($this->composer);
+
+        $configProjects = array_flip($this->config->projects);
         $requireKey = true === $input->getOption('dev') ? 'require-dev' : 'require';
-        $packageAccessor = true === $input->getOption('dev') ? 'getDevRequires' : 'getRequires';
 
         if (is_string($input->getOption('json-path'))) {
             return $this->blendJsonPath($input, $output);
@@ -53,29 +56,37 @@ final class BlendCommand extends BaseCommand
 
         $projects = $this->getProjects($input);
         $package = $this->composer->getPackage();
+        $all = $input->getOption('all');
         foreach ($this->config->composerFiles as $p => $composerFile) {
             if ($projects && !in_array($p, $projects, true)) {
                 continue;
             }
 
             $projectPackage = $this->readJsonFile($composerFile);
-            foreach ($package->{$packageAccessor}() as $g) {
-                // Only update the package if it's found in the project's package
-                if (!$input->getOption('force')) {
-                    $hasPackage = false;
-                    foreach ($projectPackage[$requireKey] ?? [] as $r => $constraint) {
-                        if ($g->getTarget() === $r) {
-                            $hasPackage = true;
-                            break;
+            foreach (array_merge($package->getRequires(), $package->getDevRequires()) as $g) {
+                $packageName = $g->getTarget();
+                if ($input->getOption('self') && !isset($configProjects[$packageName])) {
+                    continue;
+                }
+
+                foreach ($all ? ['require', 'require-dev'] : [$requireKey] as $k) {
+                    // Only update the package if it's found in the project's package
+                    if (!$input->getOption('force')) {
+                        $hasPackage = false;
+                        foreach ($projectPackage[$k] ?? [] as $r => $constraint) {
+                            if ($packageName === $r) {
+                                $hasPackage = true;
+                                break;
+                            }
+                        }
+
+                        if (!$hasPackage) {
+                            continue;
                         }
                     }
 
-                    if (!$hasPackage) {
-                        continue;
-                    }
+                    $projectPackage[$k][$packageName] = $g->getPrettyConstraint();
                 }
-
-                $projectPackage[$requireKey][$g->getTarget()] = $g->getPrettyConstraint();
             }
 
             file_put_contents($composerFile, json_encode($projectPackage, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) . "\n");

@@ -16,8 +16,6 @@ namespace MonoRepo\D;
 // not inside require but inside the baseline
 use MonoRepo\A\A;
 
-class C {
+class D {
     public function __construct(public ?A $a = null) {}
 }
-
-

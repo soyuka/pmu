@@ -51,8 +51,14 @@ final class BlendCommandTest extends TestCase {
     }
 
     public function testBlendDev(): void {
-        $this->files = [__DIR__ . '/../monorepo/packages/A/composer.json'];
-        $this->backups = [file_get_contents($this->files[0])];
+        $this->files = [
+            __DIR__ . '/../monorepo/packages/A/composer.json',
+            __DIR__ . '/../monorepo/packages/D/composer.json'
+        ];
+        $this->backups = [
+            file_get_contents($this->files[0]),
+            file_get_contents($this->files[1])
+        ];
         $output = new BufferedOutput;
         $this->application->run(new StringInput('blend --dev'), $output);
         $json = file_get_contents($this->files[0]) ?: throw new \RuntimeException;
@@ -77,7 +83,13 @@ final class BlendCommandTest extends TestCase {
     }
 
     public function testBlendJsonPath(): void {
-        $this->files = [__DIR__ . '/../monorepo/packages/A/composer.json', __DIR__ . '/../monorepo/packages/B/composer.json', __DIR__ . '/../monorepo/packages/C/composer.json'];
+        $this->files = [
+            __DIR__ . '/../monorepo/packages/A/composer.json',
+            __DIR__ . '/../monorepo/packages/B/composer.json',
+            __DIR__ . '/../monorepo/packages/C/composer.json',
+            __DIR__ . '/../monorepo/packages/D/composer.json'
+        ];
+
         $this->backups = array_map('file_get_contents', $this->files);
         $output = new BufferedOutput;
         $this->application->run(new StringInput('blend --json-path=extra.branch-alias.dev-main --force'), $output);
@@ -92,7 +104,12 @@ final class BlendCommandTest extends TestCase {
     }
 
     public function testBlendJsonPathEscapeDot(): void {
-        $this->files = [__DIR__ . '/../monorepo/packages/A/composer.json', __DIR__ . '/../monorepo/packages/B/composer.json', __DIR__ . '/../monorepo/packages/C/composer.json'];
+        $this->files = [
+            __DIR__ . '/../monorepo/packages/A/composer.json',
+            __DIR__ . '/../monorepo/packages/B/composer.json',
+            __DIR__ . '/../monorepo/packages/C/composer.json',
+            __DIR__ . '/../monorepo/packages/D/composer.json'
+        ];
         $this->backups = array_map('file_get_contents', $this->files);
         $output = new BufferedOutput;
         $this->application->run(new StringInput('blend --json-path=extra.branch-alias.dev-3\\\.4 --force'), $output);
@@ -104,6 +121,18 @@ final class BlendCommandTest extends TestCase {
             $this->assertEquals($new['extra']['branch-alias']['dev-3.4'] ?? null, '3.4.x-dev');
         }
         $this->assertEquals("", $output->fetch());
+    }
+
+    public function testBlendSelf(): void {
+        $this->files = [__DIR__ . '/../monorepo/packages/D/composer.json'];
+        $this->backups = [file_get_contents($this->files[0])];
+        $output = new BufferedOutput;
+        $this->application->run(new StringInput('blend --self --all test/d'), $output);
+        $json = file_get_contents($this->files[0]) ?: throw new \RuntimeException;
+
+        /** @var array{require: array<string, string>, 'require-dev': array<string, string>} */
+        $new = json_decode($json, true);
+        $this->assertEquals($new['require-dev']['test/b'], '^1.0.0 || @dev');
     }
 
     protected function tearDown(): void {
