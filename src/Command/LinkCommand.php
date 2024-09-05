@@ -44,13 +44,12 @@ final class LinkCommand extends BaseCommand
             ->setDefinition([
                 new InputArgument('path', InputArgument::OPTIONAL, 'Path to link.'),
                 new InputOption('working-directory', 'wd', InputOption::VALUE_REQUIRED, "Defaults to SERVER['PWD']"),
-                new InputOption('permanent', 'p', InputOption::VALUE_NONE, "Permanent composer change, does not revert backups."),
             ]);
     }
 
     private function getComposerFileAtPath(mixed $path): string
     {
-        return is_string($path) ? join(DIRECTORY_SEPARATOR, [$path, 'composer.json']) : join(DIRECTORY_SEPARATOR, [getcwd(), Factory::getComposerFile()]);
+        return is_string($path) ? join('/', [$path, 'composer.json']) : join('/', [getcwd(), Factory::getComposerFile()]);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -63,7 +62,7 @@ final class LinkCommand extends BaseCommand
                 throw new RuntimeException(sprintf('Can not find working directory, specify its value using "composer link %s --working-directory=$(pwd)"', $path));
             }
 
-            $path = join(DIRECTORY_SEPARATOR, [$wd, $path]);
+            $path = join('/', [$wd, $path]);
         }
 
         $monoRepositoryComposerFile = $this->getComposerFileAtPath($path);
@@ -72,14 +71,14 @@ final class LinkCommand extends BaseCommand
         $config = Config::createFromJson($monoRepositoryComposer, $baseDir);
         $composerFile = $this->getComposerFileAtPath($wd);
         $repositories = $this->buildRepositories($config->composerFiles);
-        $composer = self::$fileContents[$composerFile] = $this->readJsonFile($composerFile);
+        $composer = static::$fileContents[$composerFile] = $this->readJsonFile($composerFile);
 
         $filesToWrite = [];
         $revert = [];
-        
+
         $dependencies = [
-            'require' => $this->mapRequireDependencies($composer, $config->composerFiles),
-            'require-dev' => $this->mapRequireDevDependencies($composer, $config->composerFiles)
+            'require' => $this->mapRequireDependencies($composer, $config->composerFiles, $output),
+            'require-dev' => $this->mapRequireDevDependencies($composer, $config->composerFiles, $output)
         ];
 
         foreach ($dependencies['require'] as $dependency) {
@@ -128,10 +127,6 @@ final class LinkCommand extends BaseCommand
         } catch (\Exception $e) {
         }
 
-        if ($input->getOption('permanent')) {
-            return 0;
-        }
-
         foreach ($revert as $file => $backup) {
             rename($backup, $file);
         }
@@ -145,8 +140,8 @@ final class LinkCommand extends BaseCommand
      *
      * @return array<string>
      */
-    private function mapRequireDependencies(array $composer, array $composerFiles): array {
-        return array_unique(iterator_to_array($this->mapDependencies($composer, $composerFiles, 'require')));
+    private function mapRequireDependencies(array $composer, array $composerFiles, OutputInterface $output): array {
+        return array_unique(iterator_to_array($this->mapDependencies($composer, $composerFiles, 'require', $output)));
     }
 
     /**
@@ -155,8 +150,8 @@ final class LinkCommand extends BaseCommand
      *
      * @return array<string>
      */
-    private function mapRequireDevDependencies(array $composer, array $composerFiles): array {
-        return array_unique(iterator_to_array($this->mapDependencies($composer, $composerFiles, 'require-dev')));
+    private function mapRequireDevDependencies(array $composer, array $composerFiles, OutputInterface $output): array {
+        return array_unique(iterator_to_array($this->mapDependencies($composer, $composerFiles, 'require-dev', $output)));
     }
 
     /**
@@ -165,7 +160,7 @@ final class LinkCommand extends BaseCommand
      *
      * @return iterable<string>
      */
-    private function mapDependencies(array $composer, array $composerFiles, string $key): iterable {
+    private function mapDependencies(array $composer, array $composerFiles, string $key, OutputInterface $output, array $log = []): iterable {
         foreach (array_keys($composer[$key] ?? []) as $package) {
             if (!isset($composerFiles[$package]) || !is_string($package)) {
                 continue;
@@ -173,8 +168,22 @@ final class LinkCommand extends BaseCommand
 
             yield $package;
 
-            self::$fileContents[$composerFiles[$package]] = $this->readJsonFile($composerFiles[$package]);
-            foreach ($this->mapDependencies(static::$fileContents[$composerFiles[$package]], $composerFiles, $key) as $package) {
+            static::$fileContents[$composerFiles[$package]] = $this->readJsonFile($composerFiles[$package]);
+            if (!isset($log[$composer['name']])){
+                $log[$composer['name']] = [];
+            }
+
+            if (isset($log[$composer['name']][$package])) {
+                $output->writeln('Circular dependency detected while computing the dependency tree.');
+                foreach ($log as $package => $dependencies) {
+                    $output->writeln(sprintf('%s installs %s', $package, implode(', ', array_keys($dependencies))));
+                }
+                continue;
+            }
+
+            $log[$composer['name']][$package] = 1;
+
+            foreach ($this->mapDependencies(static::$fileContents[$composerFiles[$package]], $composerFiles, $key, $output, $log) as $package) {
                 yield $package;
             }
         }
