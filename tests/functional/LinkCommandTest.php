@@ -35,4 +35,12 @@ final class LinkCommandTest extends TestCase {
         $this->assertTrue(is_link("./tests/monorepo/vendor/test/b"));
         $this->assertTrue(is_link("./tests/monorepo/vendor/test/c"));
     }
+
+    public function testLinkWithReplace(): void {
+        chdir(__DIR__ . '/../replace');
+        $nullOutput = new NullOutput;
+        $this->application->run(new StringInput('link ../monorepo'), $nullOutput);
+        $this->assertTrue(is_link("./tests/monorepo/vendor/monorepo"));
+        $this->assertTrue(is_link("./tests/monorepo/vendor/test/d"));
+    }
 }

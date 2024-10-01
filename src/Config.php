@@ -28,9 +28,10 @@ final class Config
     }
 
     /**
-     * @param array{extra?: array{pmu?: array{projects?: string[], exclude?: string[]}}} $composer
+     * @param array{name?: string, replace?: array<string, string>, extra?: array{pmu?: array{projects?: string[], exclude?: string[]}}} $composer
+     * @param array{name?: string, require?: array<string, string>, 'require-dev'?: array<string, string>} $projectComposer
      */
-    public static function createFromJson($composer, string $baseDir = '.'): static
+    public static function createFromJson($composer, string $baseDir = '.', array $projectComposer = []): static
     {
         $extra = $composer['extra'] ?? [];
         if (!isset($extra['pmu'])) {
@@ -48,12 +49,22 @@ final class Config
                 }
             }
         }
+    
+        $composerFiles = [];
+
+        // If the project requires the monorepository package, we add a repository for it.
+        // useful to work with `replace`
+        $name = $composer['name'] ?? null;
+        $hasMonorepositoryAsDependency = false;
+        if ($name && (array_key_exists($name, $projectComposer['require'] ?? []) || array_key_exists($name, $projectComposer['require-dev'] ?? []))) {
+            $hasMonorepositoryAsDependency = true;
+            $composerFiles[$name] = implode(DIRECTORY_SEPARATOR, [$baseDir, 'composer.json']);
+        }
 
         $files = self::toArrayString($extra['pmu']['projects'] ?? null);
         $projects = [];
-        $composerFiles = [];
         foreach ($files as $glob) {
-            $filenames = glob(join(DIRECTORY_SEPARATOR, [$baseDir, $glob]));
+            $filenames = glob(implode(DIRECTORY_SEPARATOR, [$baseDir, $glob]));
             if (!$filenames) {
                 return new self();
             }
@@ -66,6 +77,10 @@ final class Config
                 $json = json_decode($content, true);
                 if (!is_array($json) || !isset($json['name']) || !is_string($json['name'])) {
                     throw new \RuntimeException(sprintf('Malformed JSON at path %s.', $filename));
+                }
+
+                if ($hasMonorepositoryAsDependency && array_key_exists($json['name'], $composer['replace'])) {
+                    continue;
                 }
 
                 $projects[] = $json['name'];

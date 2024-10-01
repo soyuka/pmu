@@ -68,10 +68,10 @@ final class LinkCommand extends BaseCommand
         $monoRepositoryComposerFile = $this->getComposerFileAtPath($path);
         $monoRepositoryComposer = $this->readJsonFile($monoRepositoryComposerFile);
         $baseDir = dirname($monoRepositoryComposerFile);
-        $config = Config::createFromJson($monoRepositoryComposer, $baseDir);
         $composerFile = $this->getComposerFileAtPath($wd);
-        $repositories = $this->buildRepositories($config->composerFiles);
         $composer = static::$fileContents[$composerFile] = $this->readJsonFile($composerFile);
+        $config = Config::createFromJson($monoRepositoryComposer, $baseDir, $composer);
+        $repositories = $this->buildRepositories($config->composerFiles);
 
         $filesToWrite = [];
         $revert = [];

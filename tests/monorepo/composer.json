@@ -14,6 +14,11 @@
         "test/c": "^1.0.0 || @dev",
         "test/d": "^1.0.0 || @dev"
     },
+    "replace": {
+      "test/a": "self.version",
+      "test/b": "self.version",
+      "test/c": "self.version"
+    },
     "minimum-stability": "dev",
     "autoload": {
         "psr-4": {

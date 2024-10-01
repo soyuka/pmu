@@ -1,0 +1,39 @@
+{
+    "type": "project",
+    "require": {
+        "test/a": "*",
+        "test/b": "*",
+        "test/c": "*",
+        "test/d": "*",
+        "test/monorepo": "*"
+    },
+    "minimum-stability": "dev",
+    "autoload": {
+        "psr-4": {
+            "Replace\\": "."
+        }
+    },
+    "require-dev": {
+        "soyuka/pmu": "*@dev"
+    },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../../",
+            "options": {
+                "symlink": true
+            }
+        }
+    ],
+    "extra": {
+        "branch-alias": {
+            "dev-main": "3.3.x-dev",
+            "dev-3.4": "3.4.x-dev"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "soyuka/pmu": true
+        }
+    }
+}
