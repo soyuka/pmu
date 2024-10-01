@@ -169,11 +169,12 @@ final class LinkCommand extends BaseCommand
             yield $package;
 
             static::$fileContents[$composerFiles[$package]] = $this->readJsonFile($composerFiles[$package]);
-            if (!isset($log[$composer['name']])){
-                $log[$composer['name']] = [];
+            $name = $composer['name'] ?? '';
+            if (!isset($log[$name])){
+                $log[$name] = [];
             }
 
-            if (isset($log[$composer['name']][$package])) {
+            if (isset($log[$name][$package])) {
                 $output->writeln('Circular dependency detected while computing the dependency tree.');
                 foreach ($log as $package => $dependencies) {
                     $output->writeln(sprintf('%s installs %s', $package, implode(', ', array_keys($dependencies))));
@@ -181,7 +182,7 @@ final class LinkCommand extends BaseCommand
                 continue;
             }
 
-            $log[$composer['name']][$package] = 1;
+            $log[$name][$package] = 1;
 
             foreach ($this->mapDependencies(static::$fileContents[$composerFiles[$package]], $composerFiles, $key, $output, $log) as $package) {
                 yield $package;
