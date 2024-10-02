@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Pmu\Command;
 
 use Composer\Command\BaseCommand;
+use Composer\Console\Input\InputOption;
 use Pmu\Composer\BaseDirTrait;
 use Pmu\Config;
 use Pmu\Dependencies;
@@ -26,16 +27,24 @@ final class CheckCommand extends BaseCommand
 
     protected function configure(): void
     {
-        $this->setName('check-dependencies')->setDescription('Checks the monorepo dependencies.');
+        $this->setName('check-dependencies')
+             ->setDescription('Checks the monorepo dependencies.')
+            ->setDefinition([
+                new InputOption('working-directory', 'wd', InputOption::VALUE_REQUIRED, "Defaults to SERVER['PWD']"),
+            ]);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $autoload = getcwd() . '/vendor/autoload.php';
-        if (file_exists($autoload)) {
-            require_once $autoload;
+        $wd = $input->getOption('working-directory') ?? $_SERVER['PWD'] ?? null;
+        $autoload = $wd . '/vendor/autoload.php';
+
+        if (!file_exists($autoload)) {
+            $output->writeln(sprintf('No autoload at path "%s".', $autoload));
+            return 1;
         }
 
+        require_once $autoload;
         $composer = $this->requireComposer();
         $config = Config::create($composer);
         $repo = $composer->getRepositoryManager();

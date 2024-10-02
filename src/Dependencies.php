@@ -90,7 +90,7 @@ final class Dependencies
             }
 
             if ($computeClassMap) {
-                $classMapGenerator->scanPaths(dirname($composerFile));
+                $classMapGenerator->scanPaths(dirname($composerFile), null, 'classmap', null, ['vendor']);
                 foreach ($classMapGenerator->getClassMap()->getMap() as $class => $path) {
                     foreach ($namespaces as $ns) {
                         foreach ($config->exclude as $g) {
