@@ -13,6 +13,7 @@ composer global require --dev soyuka/pmu # ability to link projects globally
 ## Configuration
 
 ```json5
+// composer.json
 {
   "name": "test/monorepo",
   // Specify the projects that are part of your monorepository

@@ -26,7 +26,7 @@ final class GraphCommand extends BaseCommand
     {
         $this->setName('graph')
             ->setDefinition([
-                new InputArgument('projects', InputArgument::IS_ARRAY | InputArgument::OPTIONAL, ''),
+                new InputArgument('projects', InputArgument::IS_ARRAY | InputArgument::OPTIONAL, 'Projects to generate the graph for.'),
             ])
               ->setDescription('Outputs the graph of dependencies in the Dot format');
     }
