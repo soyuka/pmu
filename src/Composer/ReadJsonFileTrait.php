@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Pmu\Composer;
 
 /**
- * @phpstan-type ComposerJsonType array{repositories?: list<array{type: string, url: string}>, require?: array<string, string>, require-dev?: array<string, string>, extra?: array{pmu?: array{projects?: string[], exclude?: string[]}}}
+ * @phpstan-type ComposerJsonType array{name?: string, replace: array<string, string>, repositories?: list<array{type: string, url: string}>, require?: array<string, string>, require-dev?: array<string, string>, extra?: array{pmu?: array{projects?: string[], exclude?: string[]}}}
  */
 trait ReadJsonFileTrait
 {

@@ -79,7 +79,7 @@ final class Config
                     throw new \RuntimeException(sprintf('Malformed JSON at path %s.', $filename));
                 }
 
-                if ($hasMonorepositoryAsDependency && array_key_exists($json['name'], $composer['replace'])) {
+                if ($hasMonorepositoryAsDependency && array_key_exists($json['name'], $composer['replace'] ?? [])) {
                     continue;
                 }
 

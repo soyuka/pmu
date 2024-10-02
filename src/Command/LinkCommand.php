@@ -26,10 +26,11 @@ use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * @phpstan-type ComposerJsonType array{repositories?: list<array{type: string, url: string}>, require?: array<string, string>, require-dev?: array<string, string>, extra?: array{pmu?: array{projects?: string[], exclude?: string[]}}}
+ * @phpstan-type ComposerJsonType array{name?: string, replace: array<string, string>, repositories?: list<array{type: string, url: string}>, require?: array<string, string>, require-dev?: array<string, string>, extra?: array{pmu?: array{projects?: string[], exclude?: string[]}}}
  */
 final class LinkCommand extends BaseCommand
 {
+    public const REQUIRE_KEYS = ['require', 'require-dev'];
     use ReadJsonFileTrait;
 
     /**
@@ -73,6 +74,12 @@ final class LinkCommand extends BaseCommand
         $composer = static::$fileContents[$composerFile] = $this->readJsonFile($composerFile);
         $config = Config::createFromJson($monoRepositoryComposer, $baseDir, $composer);
         $repositories = $this->buildRepositories($config->composerFiles);
+
+        // This allows the command to be used on any repo
+        if (!$config->projects && !$repositories && ($name = $monoRepositoryComposer['name'] ?? null)) {
+            $config = new Config(composerFiles: [$name => $monoRepositoryComposerFile]);
+            $repositories = $this->buildRepositories($config->composerFiles);
+        }
 
         $filesToWrite = [];
         $revert = [];
@@ -125,7 +132,7 @@ final class LinkCommand extends BaseCommand
             $application = new Application();
             $application->setAutoExit(false);
             $application->run(new StringInput('update'), $output);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
         }
 
         if ($input->getOption('permanent')) {
@@ -160,8 +167,10 @@ final class LinkCommand extends BaseCommand
     }
 
     /**
+     * @param value-of<self::REQUIRE_KEYS> $key
      * @param ComposerJsonType $composer
      * @param array<string, string> $composerFiles
+     * @param array<string, array<string, 1>> $log
      *
      * @return iterable<string>
      */
