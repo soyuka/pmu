@@ -32,12 +32,13 @@ final class BlendCommand extends BaseCommand
     {
         $this->setName('blend')
             ->setDefinition([
-                new InputOption('dev', 'D', InputOption::VALUE_NONE, 'Blend dev requirements.'),
-                new InputOption('all', 'A', InputOption::VALUE_NONE, 'Blend all (dev + non-dev) requirements.'),
-                new InputOption('self', 'S', InputOption::VALUE_NONE, 'Blend only the mono-repository projects requirements.'),
+                new InputOption('dev', 'D', InputOption::VALUE_NONE, 'Blend dev requirements'),
+                new InputOption('all', 'A', InputOption::VALUE_NONE, 'Blend all (dev + non-dev) requirements'),
+                new InputOption('self', 'S', InputOption::VALUE_NONE, 'Blend only the mono-repository projects requirements'),
                 new InputOption('json-path', null, InputOption::VALUE_REQUIRED, 'Json path to blend'),
-                new InputOption('force', null, InputOption::VALUE_NONE, 'Force'),
-                new InputArgument('projects', InputArgument::IS_ARRAY | InputArgument::OPTIONAL, ''),
+                new InputOption('force', null, InputOption::VALUE_NONE, 'Force to write value even if it is not present yet'),
+                new InputOption('value', null, InputOption::VALUE_REQUIRED, 'Value to use'),
+                new InputArgument('projects', InputArgument::IS_ARRAY | InputArgument::OPTIONAL, 'Projects to generate the graph for'),
             ])
             ->setDescription('Blend the mono-repository dependencies into each projects. We read all the dependencies of the root package and map them to either dev, non-dev or all.');
     }
@@ -99,7 +100,6 @@ final class BlendCommand extends BaseCommand
         /** @var string */
         $jsonPath = $input->getOption('json-path');
         $path = $this->composer->getConfig()->getConfigSource()->getName();
-        $data = $this->readJsonFile($path);
 		$pattern = '/(?<!\\\\)\./';  // Regex pattern to match a dot not preceded by a backslash
 		$pointers = preg_split($pattern, $jsonPath);
 
@@ -112,16 +112,19 @@ final class BlendCommand extends BaseCommand
 			$part = str_replace('\.', '.', $part);
 		}
 
-        $p = $pointers;
-        $value = $data;
-        while($pointer = array_shift($p)) {
-            /** @var string $pointer */
-            if (!is_array($value) || !isset($value[$pointer])) {
-                $output->writeln(sprintf('Node "%s" not found.', $jsonPath));
-                return 1;
-            }
+        if (!$value = $input->getOption('value')) {
+            $p = $pointers;
+            $data = $this->readJsonFile($path);
+            $value = $data;
+            while($pointer = array_shift($p)) {
+                /** @var string $pointer */
+                if (!is_array($value) || !isset($value[$pointer])) {
+                    $output->writeln(sprintf('Node "%s" not found.', $jsonPath));
+                    return 1;
+                }
 
-            $value = $value[$pointer];
+                $value = $value[$pointer];
+            }
         }
 
         $projects = $this->getProjects($input);
