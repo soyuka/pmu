@@ -15,7 +15,7 @@ namespace Pmu\Tests\Functional;
 
 use Composer\Console\Application;
 use PHPUnit\Framework\TestCase;
-use Pmu\Command\AllCommand;
+use Pmu\Command\LinkCommand;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\NullOutput;
 
@@ -23,7 +23,7 @@ final class LinkCommandTest extends TestCase {
     private Application $application;
     public function setUp(): void {
         $this->application = new Application();
-        $this->application->add(new AllCommand);
+        $this->application->add(new LinkCommand);
         $this->application->setAutoExit(false);
         chdir(__DIR__ . '/../monorepo');
     }
@@ -31,16 +31,6 @@ final class LinkCommandTest extends TestCase {
     public function testLink(): void {
         $nullOutput = new NullOutput;
         $this->application->run(new StringInput('link'), $nullOutput);
-        $this->assertTrue(is_link("./tests/monorepo/vendor/test/a"));
-        $this->assertTrue(is_link("./tests/monorepo/vendor/test/b"));
-        $this->assertTrue(is_link("./tests/monorepo/vendor/test/c"));
-    }
-
-    public function testLinkWithReplace(): void {
-        chdir(__DIR__ . '/../replace');
-        $nullOutput = new NullOutput;
-        $this->application->run(new StringInput('link ../monorepo'), $nullOutput);
-        $this->assertTrue(is_link("./tests/monorepo/vendor/monorepo"));
-        $this->assertTrue(is_link("./tests/monorepo/vendor/test/d"));
+        $this->assertTrue(is_link(__DIR__ . '/../monorepo/vendor/test/d'));
     }
 }

@@ -61,7 +61,7 @@ composer all config extra.branch-alias.dev-main 3.3.x-dev -vvv
 Blend your root `composer.json` constraints in each of the projects. 
 
 ```
-composer blend [--dev] [--all] [--self] [project-name]
+composer blend [--dev] [--all] [--self] [--json-path=JSON-PATH] [--value=VALUE] [project-name]
 ```
 
 Note: there's no dry mode on this command, use a VCS to rollback on unwanted changes.
@@ -74,6 +74,12 @@ Blend can also transfer any json path:
 
 ```
 composer blend --json-path=extra.branch-alias.dev-main --force
+```
+
+Or blend a given value:
+
+```
+composer blend --json-path=extra.branch-alias.dev-main --force --value=4.x
 ```
 
 Where `force` will write even if the value is not present in the project's `composer.json`.

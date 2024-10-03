@@ -3,5 +3,6 @@ vendor
 tests/monorepo/packages/A/composer.lock
 tests/monorepo/packages/B/composer.lock
 tests/monorepo/packages/C/composer.lock
+tests/monorepo/packages/D/composer.lock
 tests/replace/composer.lock
 tests/monorepo/composer.lock

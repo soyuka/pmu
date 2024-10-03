@@ -27,16 +27,26 @@
         "symfony/var-dumper": "^7.0",
         "phpstan/phpstan": "^1.10",
         "friendsofphp/php-cs-fixer": "^3.50",
-        "phpunit/phpunit": "^11.0"
+        "phpunit/phpunit": "^11.0",
+        "symfony/thanks": "^1.4"
     },
     "extra": {
 			"class": "Pmu\\Composer\\Plugin",
-      "plugin-optional": true
+      "plugin-optional": true,
+      "thanks": {
+          "name": "soyuka/pmu",
+          "url": "https://github.com/soyuka/pmu"
+      }
     },
     "scripts": {
         "functional": "./vendor/bin/phpunit --bootstrap ./vendor/autoload.php tests/functional",
         "unit": "/vendor/bin/phpunit --bootstrap ./vendor/autoload.php tests/unit",
         "cs": "./vendor/bin/php-cs-fixer fix",
         "phpstan": "./vendor/bin/phpstan analyse"
+    },
+    "config": {
+        "allow-plugins": {
+            "symfony/thanks": true
+        }
     }
 }
