@@ -30,7 +30,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 final class LinkCommand extends BaseCommand
 {
-    public const REQUIRE_KEYS = ['require', 'require-dev'];
+    public const REQUIRE_KEYS = ['require', 'require-dev', 'replace'];
     use ReadJsonFileTrait;
 
     /**
@@ -86,7 +86,8 @@ final class LinkCommand extends BaseCommand
 
         $dependencies = [
             'require' => $this->mapRequireDependencies($composer, $config->composerFiles, $output),
-            'require-dev' => $this->mapRequireDevDependencies($composer, $config->composerFiles, $output)
+            'require-dev' => $this->mapRequireDevDependencies($composer, $config->composerFiles, $output),
+            'replace' => $this->mapReplaceDependencies($composer, $config->composerFiles, $output)
         ];
 
         foreach ($dependencies['require'] as $dependency) {
@@ -96,8 +97,13 @@ final class LinkCommand extends BaseCommand
         foreach ($dependencies['require-dev'] as $dependency) {
             static::$fileContents[$composerFile]['require-dev'][$dependency] = '@dev';
         }
+        
+        foreach ($dependencies['replace'] as $dependency) {
+            static::$fileContents[$composerFile]['require-dev'][$dependency] = '@dev';
+        }
+        
 
-        foreach (array_merge($dependencies['require'], $dependencies['require-dev']) as $dependency) {
+        foreach (array_merge($dependencies['require'], $dependencies['require-dev'], $dependencies['replace']) as $dependency) {
             foreach ($config->composerFiles as $f) {
                 // mapDependencies reads the composer.json contents, if it's not there we don't need to map this dependency
                 if (!isset(static::$fileContents[$f])) {
@@ -164,6 +170,16 @@ final class LinkCommand extends BaseCommand
      */
     private function mapRequireDevDependencies(array $composer, array $composerFiles, OutputInterface $output): array {
         return array_unique(iterator_to_array($this->mapDependencies($composer, $composerFiles, 'require-dev', $output)));
+    }
+
+    /**
+     * @param ComposerJsonType $composer
+     * @param array<string, string> $composerFiles
+     *
+     * @return array<string>
+     */
+    private function mapReplaceDependencies(array $composer, array $composerFiles, OutputInterface $output): array {
+        return array_unique(iterator_to_array($this->mapDependencies($composer, $composerFiles, 'replace', $output)));
     }
 
     /**
