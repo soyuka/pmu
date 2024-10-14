@@ -1,8 +1,9 @@
 # PMU
 
 ![PHP Monorepository Utility](./pmu.png)
+PMU (PHP Monorepo Utility) is a Composer plugin specifically designed to facilitate PHP monorepo management. It provides commands for running operations on single or multiple projects, synchronizing dependencies, and blending shared configurations.
+PMU simplifies dependency handling and automation across interconnected packages, ensuring efficient development and maintenance in monorepositories.
 
-PMU is a Composer plugin for PHP Monorepository management. 
 ## Installation
 
 ```
