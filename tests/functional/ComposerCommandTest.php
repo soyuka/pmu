@@ -33,4 +33,10 @@ final class ComposerCommandTest extends TestCase {
         $this->application->run(new StringInput('test/a run-script hello'), $output);
         $this->assertEquals("> exit 123\nScript exit 123 handling the hello event returned with error code 123\n", $output->fetch());
     }
+
+    public function testRunPwd(): void {
+        $output = new BufferedOutput;
+        $this->application->run(new StringInput('test/a --cwd'), $output);
+        $this->assertEquals('././packages/A', $output->fetch());
+    }
 }

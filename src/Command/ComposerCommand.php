@@ -15,6 +15,7 @@ namespace Pmu\Command;
 
 use Composer\Command\BaseCommand;
 use Composer\Console\Input\InputArgument;
+use Composer\Console\Input\InputOption;
 use Pmu\Composer\Application;
 use Pmu\Composer\BaseDirTrait;
 use Pmu\Config;
@@ -38,6 +39,7 @@ final class ComposerCommand extends BaseCommand
             ->setDefinition([
                 new InputArgument('command-name', InputArgument::REQUIRED, ''),
                 new InputArgument('args', InputArgument::IS_ARRAY | InputArgument::OPTIONAL, ''),
+                new InputOption('cwd', null, InputOption::VALUE_NONE, 'Returns the current working directory of a component.')
             ])
             ->setHelp(
                 <<<EOT
@@ -62,6 +64,11 @@ EOT
         $key = array_search($this->package, $command, true);
         unset($command[$key]);
         $input = new StringInput(implode(' ', $command));
+
+        if ('--cwd' === ($command[1] ?? null)) {
+            $output->write(dirname($config->composerFiles[$this->package]));
+            return 0;
+        }
 
         // Change cwd and run
         chdir(dirname($config->composerFiles[$this->package]));
