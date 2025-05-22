@@ -55,9 +55,34 @@ final class BlendCommand extends BaseCommand
             return $this->blendJsonPath($input, $output);
         }
 
-        $projects = $this->getProjects($input);
-        $package = $this->composer->getPackage();
         $all = $input->getOption('all');
+        $projects = $this->getProjects($input);
+
+        // blend a value on the mono-repository's dependencies
+        if (($v = $input->getOption('value')) && $input->getOption('self')) {
+            foreach ($this->config->composerFiles as $p => $composerFile) {
+                if ($projects && !in_array($p, $projects, true)) {
+                    continue;
+                }
+
+                $projectPackage = $this->readJsonFile($composerFile);
+
+                foreach ($all ? ['require', 'require-dev'] : [$requireKey] as $k) {
+                    foreach ($this->config->projects as $p) {
+                        if (isset($projectPackage[$k][$p])) {
+                            $projectPackage[$k][$p] = $v;
+
+                        }
+                    }
+                }
+
+                file_put_contents($composerFile, json_encode($projectPackage, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) . "\n");
+            }
+
+            return 0;
+        }
+
+        $package = $this->composer->getPackage();
         foreach ($this->config->composerFiles as $p => $composerFile) {
             if ($projects && !in_array($p, $projects, true)) {
                 continue;

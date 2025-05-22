@@ -1,0 +1,48 @@
+{
+    "name": "test/monorepo-replace-only",
+    "type": "project",
+    "description": "test project",
+    "license": "MIT",
+    "replace": {
+      "test/a": "self.version",
+      "test/b": "self.version",
+      "test/c": "self.version"
+    },
+    "minimum-stability": "dev",
+    "autoload": {
+        "psr-4": {
+            "MonoRepo\\": "src/"
+        }
+    },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../../",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "./packages/A"
+        },
+        {
+            "type": "path",
+            "url": "./packages/B"
+        },
+        {
+            "type": "path",
+            "url": "./packages/C"
+        }
+    ],
+    "extra": {
+        "pmu": {
+            "projects": ["./packages/*/composer.json"]
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "soyuka/pmu": true
+        }
+    }
+}

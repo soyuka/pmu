@@ -1,0 +1,20 @@
+{
+    "name": "test/a",
+    "require": {
+        "test/b": "^1.0 || @dev",
+        "soyuka/contexts": "^2.0.0 || ^3.0.0"
+    },
+    "require-dev": {
+        "test/c": "^1.0 || @dev",
+        "symfony/contracts": "^1.0.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "MonoRepo\\A\\": "."
+        }
+    },
+    "scripts": {
+        "hello": "exit 123",
+        "echo": "echo"
+    }
+}

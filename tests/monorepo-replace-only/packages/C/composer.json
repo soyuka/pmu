@@ -1,0 +1,15 @@
+{
+    "name": "test/c",
+    "require": {
+        "test/b": "^1.0.0 || @dev"
+    },
+    "require-dev": [],
+    "autoload": {
+        "psr-4": {
+            "MonoRepo\\C\\": "."
+        }
+    },
+    "scripts": {
+        "echo": "echo"
+    }
+}

@@ -20,7 +20,8 @@ use RuntimeException;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 
-final class BlendCommandTest extends TestCase {
+final class BlendCommandTest extends TestCase
+{
     private Application $application;
     /**
      * @var string[]
@@ -30,14 +31,16 @@ final class BlendCommandTest extends TestCase {
      * @var array<int, string|false>
      */
     private array $backups;
-    public function setUp(): void {
+    public function setUp(): void
+    {
         $this->application = new Application();
         $this->application->add(new BlendCommand);
         $this->application->setAutoExit(false);
-        chdir(__DIR__ . '/../monorepo');
     }
 
-    public function testBlend(): void {
+    public function testBlend(): void
+    {
+        chdir(__DIR__ . '/../monorepo');
         $this->files = [__DIR__ . '/../monorepo/packages/A/composer.json'];
         $this->backups = [file_get_contents($this->files[0])];
         $output = new BufferedOutput;
@@ -50,7 +53,9 @@ final class BlendCommandTest extends TestCase {
         $this->assertEquals("", $output->fetch());
     }
 
-    public function testBlendDev(): void {
+    public function testBlendDev(): void
+    {
+        chdir(__DIR__ . '/../monorepo');
         $this->files = [
             __DIR__ . '/../monorepo/packages/A/composer.json',
             __DIR__ . '/../monorepo/packages/D/composer.json'
@@ -69,7 +74,9 @@ final class BlendCommandTest extends TestCase {
         $this->assertEquals("", $output->fetch());
     }
 
-    public function testBlendWithProject(): void {
+    public function testBlendWithProject(): void
+    {
+        chdir(__DIR__ . '/../monorepo');
         $this->files = [__DIR__ . '/../monorepo/packages/A/composer.json'];
         $this->backups = [file_get_contents($this->files[0])];
         $output = new BufferedOutput;
@@ -82,7 +89,9 @@ final class BlendCommandTest extends TestCase {
         $this->assertEquals("", $output->fetch());
     }
 
-    public function testBlendJsonPath(): void {
+    public function testBlendJsonPath(): void
+    {
+        chdir(__DIR__ . '/../monorepo');
         $this->files = [
             __DIR__ . '/../monorepo/packages/A/composer.json',
             __DIR__ . '/../monorepo/packages/B/composer.json',
@@ -103,7 +112,9 @@ final class BlendCommandTest extends TestCase {
         $this->assertEquals("", $output->fetch());
     }
 
-    public function testBlendJsonPathEscapeDot(): void {
+    public function testBlendJsonPathEscapeDot(): void
+    {
+        chdir(__DIR__ . '/../monorepo');
         $this->files = [
             __DIR__ . '/../monorepo/packages/A/composer.json',
             __DIR__ . '/../monorepo/packages/B/composer.json',
@@ -123,7 +134,9 @@ final class BlendCommandTest extends TestCase {
         $this->assertEquals("", $output->fetch());
     }
 
-    public function testBlendSelf(): void {
+    public function testBlendSelf(): void
+    {
+        chdir(__DIR__ . '/../monorepo');
         $this->files = [__DIR__ . '/../monorepo/packages/D/composer.json'];
         $this->backups = [file_get_contents($this->files[0])];
         $output = new BufferedOutput;
@@ -135,7 +148,9 @@ final class BlendCommandTest extends TestCase {
         $this->assertEquals($new['require-dev']['test/b'], '^1.0.0 || @dev');
     }
 
-    public function testBlendJsonPathWithValue(): void {
+    public function testBlendJsonPathWithValue(): void
+    {
+        chdir(__DIR__ . '/../monorepo');
         $this->files = [
             __DIR__ . '/../monorepo/packages/A/composer.json',
             __DIR__ . '/../monorepo/packages/B/composer.json',
@@ -155,7 +170,28 @@ final class BlendCommandTest extends TestCase {
         $this->assertEquals("", $output->fetch());
     }
 
-    protected function tearDown(): void {
+    public function testBlendSelfReplaceOnly(): void
+    {
+        chdir(__DIR__ . '/../monorepo-replace-only');
+        $this->files = [
+            __DIR__ . '/../monorepo-replace-only/packages/A/composer.json',
+            __DIR__ . '/../monorepo-replace-only/packages/B/composer.json',
+            __DIR__ . '/../monorepo-replace-only/packages/C/composer.json',
+        ];
+
+        $this->backups = [file_get_contents($this->files[0]), file_get_contents($this->files[1]), file_get_contents($this->files[2])];
+        $output = new BufferedOutput;
+        $this->application->run(new StringInput('blend --self --all --value=^4.1'), $output);
+        $json = file_get_contents($this->files[0]) ?: throw new \RuntimeException;
+
+        /** @var array{require: array<string, string>, 'require-dev': array<string, string>} */
+        $new = json_decode($json, true);
+        $this->assertEquals($new['require']['test/b'], '^4.1');
+        $this->assertEquals($new['require-dev']['test/c'], '^4.1');
+    }
+
+    protected function tearDown(): void
+    {
         while ($file = array_shift($this->files)) {
             if ($b = array_shift($this->backups)) {
                 file_put_contents($file, $b);
