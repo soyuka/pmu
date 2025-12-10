@@ -70,7 +70,7 @@ final class Application extends BaseApplication
             }
         }
 
-        $composer = (new Factory())->createComposer($this->io, $config, true, null, true, $disableScripts ?? false);
+        $composer = (new Factory())->createComposer($this->io, $config, false, null, true, $disableScripts ?? false);
         $config = $composer->getConfig();
         $composerFile = Factory::getComposerFile();
         $lockFile = Factory::getLockFile($composerFile);
